@@ -29,8 +29,9 @@ public class DXClient {
 		private static final Logger logger = LogManager.getLogger(DXClient.class);
 		
 	
-	public DXClient(String serverAddress, int port) throws Exception {
+	public DXClient(String call, String serverAddress, int port) throws Exception {
 
+		mycall = call;
 		listenerList = new ArrayList<DXClientListener>();
 		state = PCSTATE.idle;
 		
@@ -64,27 +65,8 @@ public class DXClient {
 	}
 		
 	public void login() throws IOException {
-		String response;
-		boolean lookingforloginprompt = true;
-		
-		while (lookingforloginprompt)
-		{
-			response = in.readLine();
-			//logger.info(response);
-			
-			if (response.contains("! on acceptable use policy and registering for full access can be found  !"))
-			{
-				in.readLine();
-				//logger.info(response);
-				in.readLine();
-				//logger.info(response);
-				lookingforloginprompt = false;
-			}
-			
-			out.write("mb7mux\n");
+			out.write(mycall + "\n");
 			out.flush();
-		}
-			
 	}
 
 	public void processPCData() throws IOException {
