@@ -18,18 +18,17 @@ import org.apache.logging.log4j.Logger;
 
 public class MulticastThread implements DXClientListener{
 
-	private DatagramSocket socket;
-	private InetAddress address;
 	private int port;
 	private NetworkInterface ni;
-	
+	private InetAddress group;
+	private MulticastSocket s;
 	private static final Logger logger = LogManager.getLogger(MulticastThread.class);
 	
 
 	public MulticastThread(InetAddress multicastAddress, int multicastPort, InetAddress sourceip) {
 		
 		try {
-			address = multicastAddress;
+			group = multicastAddress;
 			port = multicastPort;
 			ni = NetworkInterface.getByInetAddress(sourceip);
 			
@@ -37,6 +36,18 @@ public class MulticastThread implements DXClientListener{
 			{
 				logger.fatal("Cannot bind to network interface");
 				System.exit(0);
+			}
+			
+			try {
+				 s = new MulticastSocket(port);
+		    	 s.setNetworkInterface(ni);
+		    	 s.setTimeToLive(64);
+		    	 s.joinGroup(group);
+		    	 
+		    	 
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
 			
@@ -55,7 +66,7 @@ public class MulticastThread implements DXClientListener{
 		logger.info(dxs);
 		
 		try {
-			broadcast(dxs.PCmessage, address, port);
+			broadcast(dxs.PCmessage);
 			
 		} catch (IOException e) {
 			logger.info("failed to send UDP packet");
@@ -64,14 +75,10 @@ public class MulticastThread implements DXClientListener{
 		
 	}
 	
-    public void broadcast(String broadcastMessage, InetAddress group, int port) throws IOException {
-    	
-    	 MulticastSocket s = new MulticastSocket(5001);
-    	 s.setNetworkInterface(ni);
-    	 s.joinGroup(group);
-    	 DatagramPacket hi = new DatagramPacket(broadcastMessage.getBytes(), broadcastMessage.length(), group, 6789);
+    public void broadcast(String broadcastMessage) throws IOException {
+    	 
+    	 DatagramPacket hi = new DatagramPacket(broadcastMessage.getBytes(), broadcastMessage.length(), group, port);
     	 s.send(hi);
-    	
     	}
 
 	

@@ -33,6 +33,11 @@ public class App {
 		logger.info("*  Andy Mace / M0MUX 15/02/2019   *");
 		logger.info("***********************************");
 		
+		//Fix up dualstack... Yuk.
+		Properties props = System.getProperties();
+		props.setProperty("java.net.preferIPv4Stack","true");
+		System.setProperties(props);
+
 		SingleCommand.singleCommand(App.class).parse(args);
     	
     	ArrayList<String> requiredProperties = new ArrayList<String>(Arrays.asList("appName", "sourceaddress", "multicastaddress", "multicastport", "clustercall", "clusteraddress", "clusterport"));
